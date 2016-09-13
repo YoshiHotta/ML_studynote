@@ -1,0 +1,65 @@
+---
+title: "線型モデルのお勉強ノート"
+author: "yoshi"
+date: '2016-09-13'
+output:
+  html_document:
+    number_section: yes
+    smart: yes
+    toc: yes
+    toc_depth: 2
+abstract: みんなのR、16章のお勉強。
+---
+```{r, message=FALSE, warning=FALSE}
+require(UsingR)
+require(ggplot2)
+require(tidyr)
+require(dplyr)
+require(plotly)
+```
+# 単回帰
+
+```{r}
+data("father.son")
+head(father.son)
+ggplot(father.son , aes(x = fheight , y = sheight)) + geom_point() +
+   stat_smooth(method = "lm") + labs(x = "Fathers" , y = "sons")
+```
+
+```{r}
+heightsLM <- lm(sheight ~ fheight , data = father.son)
+heightsLM
+```
+結果の詳細を見るには`summary()`を使う。
+```{r}
+summary(heightsLM)
+```
+# 重回帰
+```{r}
+housing <- read.table ("http://www.jaredlander.com/data/housing.csv",
+   sep = ",", header = TRUE,
+   stringsAsFactors = FALSE)
+```
+```{r}
+names(housing) <- c("Neighborhood" , "Class" , "Units" , "YearBuilt" ,
+    "SqFt" , "Income" , "IncomeperSqFt" , "Expence" ,
+    "ExpencePerSqFt" , "NetIncome" , "Value" ,
+    "ValueperSqFt" , "Boro")
+housing <- housing[housing$Units < 1000 ,] # 外れ値を除く
+head(housing)
+```
+
+```{r}
+house1 <- lm(ValueperSqFt ~ Units + SqFt + Boro , data = housing)
+summary(house1)
+```
+```{r}
+require(coefplot)
+coefplot(house1)
+```
+相互作用も入れられる。次の式は$y=a(x_1 + x_2)^2 + b + \epsilon$で回帰する。`I()`を使わないとフォーミュラ式は$y=a x_1 + b x_2 + c x_1 * x_2 + d + \epsilon$を解釈してしまう。
+```{r}
+house9 <- lm(ValueperSqFt ~ I(Units + SqFt)^2 , data = housing)
+coefplot(house9)
+```
+
