@@ -7,10 +7,15 @@ Rによる統計学と機械学習の勉強ノート。
 # ディレクトリ  
 - ./linearModel  
 線形モデルの勉強メモ。みんなのR, 16章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/208907))
-- ./GLM
-一般化線型モデルの勉強メモ。みんなのR, 17章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/208929))
+- ./GLM  
+一般化線型モデルの勉強メモ。みんなのR, 17章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/208929))\*
+- ./modelValid  
+モデル評価の勉強メモ。みんなのR, 18章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/208941))\*
 - ./clustering  
 クラスタリングの勉強メモ。みんなのR, 22章を参考にしました。([RPub](https://rpubs.com/YoshiHotta/202617))
+
+
+\*は未完成であることを示す。
   
 
 

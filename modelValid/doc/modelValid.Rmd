@@ -1,0 +1,135 @@
+---
+title: "モデル評価の勉強メモ"
+author: "yoshi"
+date: '2016-09-13'
+output:
+  html_document:
+    number_section: yes
+    smart: yes
+    toc: yes
+    toc_depth: 2
+abstract: みんなのR、17章のお勉強。
+---
+```{r, message=FALSE, warning=FALSE}
+require(UsingR)
+require(ggplot2)
+require(tidyr)
+require(dplyr)
+require(plotly)
+require(coefplot)
+```
+
+# 残差  
+```{r}
+housing <-  read.table ("http://www.jaredlander.com/data/housing.csv",
+ sep = ",", header = TRUE,
+ stringsAsFactors = FALSE) 
+# わかりやすい列名に変更
+names(housing) <- c("Neighborhood" , "Class" , "Units" , "YearBuilt" ,
+"SqFt" , "Income" , "IncomeperSqFt" , "Expence" ,
+"ExpencePerSqFt" , "NetIncome" , "Value" ,
+"ValueperSqFt" , "Boro")
+# 外れ値を除去
+housing <- housing[housing$Units < 1000 ,]
+head(housing)
+```
+```{r}
+house1 <- lm(ValueperSqFt ~ Units + SqFt + Boro , data = housing)
+summary(house1)
+```
+```{r}
+coefplot(house1)
+```
+回帰の結果を詳細に分析するには`broom`パッケージを使う。
+```{r}
+require(broom)
+head(augment(house1))
+```
+## 適合値
+```{r}
+ggplot(aes(x = .fitted , y = .resid) , data = house1) +
+ geom_point(aes(color = Boro)) +
+ geom_hline(yintercept = 0) +
+ geom_smooth(se = FALSE) +
+ labs(x = "Fitted Value" , y = "Residuals")
+```
+## Q-Q plot  
+Q-Q plotは理論値とデータがどれくらい一致するかを調べるプロット。Q-Q plotの説明は[このサイト](http://qiita.com/kenmatsu4/items/59605dc745707e8701e0)が分かりやすい。
+```{r}
+ggplot(house1 , aes(sample = .stdresid)) + stat_qq() + geom_abline()
+```
+フィットがよければ直線上に乗る。
+
+## 残差のヒストグラム  
+```{r}
+ggplot(house1 , aes(x = .resid)) + geom_histogram()
+```
+ガウシアンに見えるのでフィットはうまくいっていると言える。
+
+# モデル比較  
+複数のモデルを比較することを考える。まずモデルを５つ作る。
+```{r}
+house2 <- lm(ValueperSqFt ~ Units * SqFt + Boro , data = housing)
+house3 <- lm(ValueperSqFt ~ Units + SqFt * Boro + Class ,
+data = housing)
+house4 <- lm(ValueperSqFt ~ Units + SqFt * Boro + SqFt * Class ,
+data = housing)
+house5 <- lm(ValueperSqFt ~ Boro + Class , data = housing)
+```
+
+```{r}
+multiplot(house1,house2,house3,house4,house5)
+```
+Boro変数が効いていることが分かる。
+
+AIC, BICを計算する。
+```{r}
+AIC(house1, house2, house3, house4, house5)
+BIC(house1, house2, house3, house4, house5)
+```
+どちらもhouse4モデルがベストだと言っている。
+
+# Cross validation  
+K-fold CVをする。{boot}はglmに対してしかK-fold CVできないので、lmを使って出来ることをわざわざglmでフィットしないといけない。
+```{r}
+houseG1 <- glm(ValueperSqFt ~ Units + SqFt + Boro ,
+ data = housing , family = gaussian(link = "identity"))
+```
+```{r}
+require(boot)
+houseCV1 <- cv.glm(housing , houseG1 , K = 5)
+houseCV1$delta
+```
+1番目がK-fold CVの誤差評価で2番目は補正をしてLOO-CVに近づけたものである。
+
+いくつかモデルを使って比較をしてみる。
+```{r}
+# glmを使い再度モデルを再適合
+houseG2 <- glm(ValueperSqFt ~ Units * SqFt + Boro , data = housing)
+houseG3 <- glm(ValueperSqFt ~ Units + SqFt * Boro + Class ,
+data = housing)
+houseG4 <- glm(ValueperSqFt ~ Units + SqFt * Boro + SqFt * Class ,
+data = housing)
+houseG5 <- glm(ValueperSqFt ~ Boro + Class , data = housing)
+
+# クロスバリデーションを実行
+houseCV2 <- cv.glm(housing , houseG2 , K = 5)
+houseCV3 <- cv.glm(housing , houseG3 , K = 5)
+houseCV4 <- cv.glm(housing , houseG4 , K = 5)
+houseCV5 <- cv.glm(housing , houseG5 , K = 5)
+
+## 誤差結果を確認
+# 結果のdata.frameを作成
+cvResults <- as.data.frame(rbind(houseCV1$delta , houseCV2$delta ,
+houseCV3$delta , houseCV4$delta ,houseCV5$delta))
+# より見やすいようにいくつか修正
+# 列名を修正
+names(cvResults) <- c("Error" , "Adjustted.Error")
+# モデル名を追加
+cvResults$Model <- sprintf("houseG%s" , 1:5)
+# 結果を確認
+cvResults
+```
+## Bootstrap  
+
+## stepwise変数選択法
