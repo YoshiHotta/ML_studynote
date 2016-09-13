@@ -1,0 +1,53 @@
+---
+title: "一般化線型モデルのお勉強ノート"
+author: "yoshi"
+date: '2016-09-13'
+output:
+  html_document:
+    number_section: yes
+    smart: yes
+    toc: yes
+    toc_depth: 2
+abstract: みんなのR、16章のお勉強。
+---
+```{r, message=FALSE, warning=FALSE}
+require(UsingR)
+require(ggplot2)
+require(tidyr)
+require(dplyr)
+require(plotly)
+require(coefplot)
+```
+# ロジスティック回帰
+```{r}
+acs <- read.table("http://jaredlander.com/data/acs_ny.csv" , sep = "," ,
+  header = TRUE , stringsAsFactors = FALSE)
+head(acs)
+```
+```{r}
+ggplot(acs , aes(x = FamilyIncome)) +
+ geom_density(fill = "grey" , color = "grey") +
+ geom_vline(xintercept = 150000) 
+```
+```{r}
+acs$income <- with(acs , FamilyIncome >= 150000)
+income1 <- glm(income ~ HouseCosts + NumWorkers + OwnRent +
+ NumBedrooms + FamilyType ,
+ data = acs , family = binomial(link = "logit"))
+summary(income1)
+```
+# ポアソン回帰  
+```{r}
+ggplot(acs , aes(x = NumChildren)) + geom_histogram(binwidth = 1)
+```
+
+```{r}
+children1 <- glm(NumChildren ~ FamilyIncome + FamilyType + OwnRent ,
+ data = acs , family = poisson(lin = "log"))
+summary(children1)
+```
+```{r}
+coefplot(children1)
+```
+# 生存時間分析
+

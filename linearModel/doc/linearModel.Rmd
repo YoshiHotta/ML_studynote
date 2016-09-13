@@ -57,7 +57,7 @@ summary(house1)
 require(coefplot)
 coefplot(house1)
 ```
-相互作用も入れられる。次の式は$y=a(x_1 + x_2)^2 + b + \epsilon$で回帰する。`I()`を使わないとフォーミュラ式は$y=a x_1 + b x_2 + c x_1 * x_2 + d + \epsilon$を解釈してしまう。
+相互作用も入れられる。次の式は$y=a(x_1 + x_2)^2 + b + \epsilon$で回帰する。`I()`を使わないとフォーミュラ式は$y=a x_1 + b x_2 + c x_1 * x_2 + d + \epsilon$と解釈してしまう。
 ```{r}
 house9 <- lm(ValueperSqFt ~ I(Units + SqFt)^2 , data = housing)
 coefplot(house9)

@@ -6,9 +6,11 @@ Rによる統計学と機械学習の勉強ノート。
 
 # ディレクトリ  
 - ./linearModel  
-線形モデルの勉強メモ。みんなのR, 16章を参考にしました。（[html](./linearModel/doc/linearModel.nb.html)）（[RPub](http://rpubs.com/YoshiHotta/208907)）
+線形モデルの勉強メモ。みんなのR, 16章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/208907))
+- ./GLM
+一般化線型モデルの勉強メモ。みんなのR, 17章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/208929))
 - ./clustering  
-クラスタリングの勉強メモ。みんなのR, 22章を参考にしました。（[html](./clustering/doc/clustering.nb.html)）（[RPub](https://rpubs.com/YoshiHotta/202617)）
+クラスタリングの勉強メモ。みんなのR, 22章を参考にしました。([RPub](https://rpubs.com/YoshiHotta/202617))
   
 
 
