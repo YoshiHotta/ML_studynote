@@ -1,0 +1,6 @@
+"0","require(useful)"
+"2"," 要求されたパッケージ useful をロード中です 
+"
+"2"," 要求されたパッケージ ggplot2 をロード中です 
+"
+"0","plot(wineK3, data=dfNoTeacher)"

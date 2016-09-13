@@ -1,0 +1,2 @@
+"0","wineGrid <- FitKMeans(x=dfNoTeacher, max.clusters = 20L, nstart = 30, iter.max = 20L)"
+"0","wineGrid"

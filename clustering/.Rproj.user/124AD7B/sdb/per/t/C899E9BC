@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"R Notebook\"\noutput:\n  html_notebook: default\n  html_document: default\n---\n\n```{r}\nrequire(cluster)\ndf <- read.table(\"~/Downloads/results-20160817-224325.csv\", header = TRUE, sep=\",\")\ndf[, \"subscription_status\"] <- factor(df[, \"subscription_status\"] )\ndf[, \"subscription_type\"] <- factor(df[, \"subscription_type\"] )\nuserPam<- pam(df, k=3, keep.diss = TRUE, keep.data = TRUE)\nk1 <- which(userPam$clustering==1)\nk2 <- which(userPam$clustering==2)\nk3 <- which(userPam$clustering==3)\ndf1 <- df[k1,]\ndf2 <- df[k2,]\ndf3 <- df[k3,]\n```\n```{r}\nsummary(df1)\n```\n\n```{r}\nsummary(df2)\n```\n\n```{r, message=TRUE, warning=FALSE}\nsummary(df3)\n```",
+    "created" : 1471443081382.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1477589113",
+    "id" : "C899E9BC",
+    "lastKnownWriteTime" : 1471444071,
+    "last_content_update" : 1471614075079,
+    "path" : "~/Documents/petraWorkspace/R/clustering/tmp/Untitled.Rmd",
+    "project_path" : "tmp/Untitled.Rmd",
+    "properties" : {
+        "chunk_output_type" : "inline",
+        "marks" : "<:28,0\n>:30,2",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

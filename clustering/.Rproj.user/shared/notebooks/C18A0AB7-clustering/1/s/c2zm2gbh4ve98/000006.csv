@@ -1,0 +1,2 @@
+"0","wineH <- hclust(d = dist(dfNoTeacher))"
+"0","plot(wineH)"

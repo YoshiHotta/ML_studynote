@@ -1,0 +1,2 @@
+"0","wineK15 <- kmeans(x = dfNoTeacher, centers = 15)"
+"0","plot(wineK15, data=dfNoTeacher)"

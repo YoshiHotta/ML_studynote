@@ -1,0 +1,13 @@
+"0","require(cluster)"
+"2"," 要求されたパッケージ cluster をロード中です 
+"
+"0","df <- read.table(""~/Downloads/results-20160817-224325.csv"", header = TRUE, sep="","")"
+"0","df[, ""subscription_status""] <- factor(df[, ""subscription_status""] )"
+"0","df[, ""subscription_type""] <- factor(df[, ""subscription_type""] )"
+"0","userPam<- pam(df, k=3, keep.diss = TRUE, keep.data = TRUE)"
+"0","k1 <- which(userPam$clustering==1)"
+"0","k2 <- which(userPam$clustering==2)"
+"0","k3 <- which(userPam$clustering==3)"
+"0","df1 <- df[k1,]"
+"0","df2 <- df[k2,]"
+"0","df3 <- df[k3,]"

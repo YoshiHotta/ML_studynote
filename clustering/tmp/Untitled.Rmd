@@ -1,0 +1,31 @@
+---
+title: "R Notebook"
+output:
+  html_notebook: default
+  html_document: default
+---
+
+```{r}
+require(cluster)
+df <- read.table("~/Downloads/results-20160817-224325.csv", header = TRUE, sep=",")
+df[, "subscription_status"] <- factor(df[, "subscription_status"] )
+df[, "subscription_type"] <- factor(df[, "subscription_type"] )
+userPam<- pam(df, k=3, keep.diss = TRUE, keep.data = TRUE)
+k1 <- which(userPam$clustering==1)
+k2 <- which(userPam$clustering==2)
+k3 <- which(userPam$clustering==3)
+df1 <- df[k1,]
+df2 <- df[k2,]
+df3 <- df[k3,]
+```
+```{r}
+summary(df1)
+```
+
+```{r}
+summary(df2)
+```
+
+```{r, message=TRUE, warning=FALSE}
+summary(df3)
+```

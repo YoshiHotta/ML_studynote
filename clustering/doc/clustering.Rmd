@@ -1,0 +1,130 @@
+---
+title: "クラスタリングのお勉強ノート"
+author: "yoshi"
+date: '2016-08-16'
+output:
+  html_document:
+    number_section: yes
+    smart: yes
+    toc: yes
+    toc_depth: 2
+---
+
+# K-meansクラスタリング
+Irvineのワインデータセットを使う。
+```{r, message=TRUE}
+df <- read.table("../data/wine.data", header = TRUE, sep=",")
+head(df)
+```
+一列目は教師ラベルであるからクラスタリングをするときは取り除く。
+```{r}
+dfNoTeacher <- df[,2:14]
+```
+３つのクラスに分類する。
+```{r,message=TRUE}
+wineK3 <- kmeans(x = dfNoTeacher, centers = 3)
+wineK3
+```
+PCAして可視化する。{useful}パッケージでplotをoverrideすると簡単にkmeansの結果を可視化できる。
+```{r}
+require(useful)
+plot(wineK3, data=dfNoTeacher)
+```  
+
+通常クラスタリングをするとき、クラスタ数は事前に分からない。クラス数の決め方としてハーティガンルールがある。{useful}パッケージにはハーティガン数を計算する関数が用意されている。  
+
+```{r, message=TRUE}
+wineGrid <- FitKMeans(x=dfNoTeacher, max.clusters = 20L, nstart = 30, iter.max = 20L)
+wineGrid
+```
+```{r}
+PlotHartigan(wineGrid)
+```
+ハーティガンルールによればクラス数は15にするべきである。
+```{r}
+wineK15 <- kmeans(x = dfNoTeacher, centers = 15)
+plot(wineK15, data=dfNoTeacher)
+```
+
+# K-medoids法
+K-meansは質的変数には使えない、外れ値に敏感であるという問題がある。
+```{r}
+indicators <- c("BX.KLT.DINV.WD.GD.ZS", "NY.GDP.DEFL.KD.ZG",
+"NY.GDP.MKTP.CD", "NY.GDP.MKTP.KD.ZG",
+"NY.GDP.PCAP.CD", "NY.GDP.PCAP.KD.ZG",
+"TG.VAL.TOTL.GD.ZS")
+require(WDI)
+# リストの中にあるすべての国のインジケータを引っ張ってくる
+# すべての国が各指標を持ってはいない
+# いくつかの国はデータが全くない
+wbInfo <- WDI(country = "all" , indicator = indicators , start = 2011 ,
+end = 2011 , extra = TRUE)
+# 集約した情報を除く
+wbInfo <- wbInfo[wbInfo$region != "Aggregates" ,]
+# すべてのインジケータがNAの国を除く
+wbInfo <- wbInfo[which(rowSums(!is.na(wbInfo[, indicators])) > 0) ,]
+# ISOが無い行を除く
+wbInfo <- wbInfo[!is.na(wbInfo$iso2c) ,]
+
+# 国名を知ることができるようにrownamesを設定する
+rownames(wbInfo) <- wbInfo$iso2c
+# 地域を再度ファクター型に、収入や貸付は水準の変化を考慮する
+wbInfo$region <- factor(wbInfo$region)
+wbInfo$income <- factor(wbInfo$income)
+wbInfo$lending <- factor(wbInfo$lending)
+```
+```{r}
+# 保持する列を見つける
+keep.cols <- which(!names(wbInfo) %in% c("iso2c" , "country" , "year" ,
+ "capital" , "iso3c"))
+require(cluster)
+# クラスタリングを適応
+wbPam <- pam(x = wbInfo[, keep.cols] , k = 3 , keep.diss = TRUE ,
+ keep.data = TRUE)
+# medoidデータを確認
+wbPam$medoids
+```
+
+各点のシルエット値は、他のクラスターの点と比べて、その点が自身のクラスター内の他の点にどれくらい相似しているかを示す尺度です。$i$ 番目の点のシルエット値 $S_i$ は、次のように定義されます。
+$$
+S_i = (b_i-a_i)/ max(a_i,b_i)
+$$
+ここで $a_i$ は $i$ 番目の点から $i$ と同じクラスターの他の点までの平均距離で、$b_i$ は $i$ 番目の点から別のクラスターの点までの最小平均距離です。
+
+シルエットをプロットする。
+```{r, message=TRUE}
+plot(wbPam, which.plots = 2)
+```
+
+# 階層型クラスタリング
+階層的クラスタリングは質的変数にも使うことが出来るが、ここでは量的変数のみを含む
+ワインデータを使い階層型クラスタリングする。
+```{r}
+wineH <- hclust(d = dist(dfNoTeacher))
+plot(wineH)
+```
+　階層的クラスタリングによって生成され得られた木を切断して、定義されたグループ
+へデータを分割します。分割の方法は2つあり、カットが行われる高さを
+指定する方法と、いくつクラスタを作るのかを指定する方法があります。
+```{r}
+# 分割数を指定する方法
+plot(wineH)
+rect.hclust(wineH , k = 3 , border = "blue")
+```
+
+```{r}
+# 高さを指定する方法
+plot(wineH)
+rect.hclust(wineH , h = 800 , border = "blue")
+```
+
+木を切断するには`cutree`を使う。
+```{r}
+cutree(wineH, k=3)
+```
+
+
+***
+# 参考文献  
+- みんなのR,22章
+- Help of MATLAB, kmedoids
