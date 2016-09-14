@@ -13,7 +13,8 @@ Rによる統計学と機械学習の勉強ノート。
 モデル評価の勉強メモ。みんなのR, 18章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/208941))\*
 - ./clustering  
 クラスタリングの勉強メモ。みんなのR, 22章を参考にしました。([RPub](https://rpubs.com/YoshiHotta/202617))
-
+- ./supervisedUnsupervised  
+EMアルゴリズムの勉強メモ。続わかりやすいパターン認識, 5章を参考にしました。([RPub](https://rpubs.com/YoshiHotta/209195))
 
 \*は未完成であることを示す。
   

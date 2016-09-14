@@ -8,7 +8,7 @@ output:
     smart: yes
     toc: yes
     toc_depth: 2
-abstract: みんなのR、17章のお勉強。
+abstract: 
 ---
 ```{r, message=FALSE, warning=FALSE}
 require(UsingR)
