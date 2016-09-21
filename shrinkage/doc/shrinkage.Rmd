@@ -1,0 +1,159 @@
+---
+title: "正則化と縮小"
+author: "yoshi"
+date: '2016-09-21'
+output:
+  html_document:
+    number_section: yes
+    smart: yes
+    toc: yes
+    toc_depth: 2
+abstract: みんなのR 19章の勉強ノート
+---
+```{r, message=FALSE, warning=FALSE}
+require(UsingR)
+require(ggplot2)
+require(tidyr)
+require(dplyr)
+require(plotly)
+require(coefplot)
+```
+
+# Lasso
+```{r}
+acs <- read.table("http://jaredlander.com/data/acs_ny.csv", sep = ",",
+ header = TRUE, stringsAsFactors = FALSE)
+```
+デザイン行列とは
+$$
+y_i = a + b_1 x_{i1} + \cdots + b_k x_{ik} + \epsilon
+$$
+と回帰するときに,
+$$
+y_i = \begin{pmatrix}1 &x_1 &\cdots &x_k\end{pmatrix} \begin{pmatrix}a &b_1 &\cdots &b_k\end{pmatrix}^T + \epsilon_i,\\
+$$
+$$
+\vec{y} = \begin{pmatrix}
+1 &x_{11} &x_{12} &\cdots &x_{1k}\\
+\vdots\\
+1 &x_{n1} &x_{n2} &\cdots &x_{nk}
+\end{pmatrix}
+\begin{pmatrix}
+a\\
+b_1\\
+\vdots\\
+b_k
+\end{pmatrix}
++ \vec{\epsilon}
+$$
+```{r}
+head(acs)
+```
+```{r}
+require(useful)
+```
+
+```{r}
+acs$Income <- with(acs, FamilyIncome >= 150000) # logistic regressionの実験のための教師ラベル
+```
+```{r}
+acsX <- build.x(Income ~ NumBedrooms + NumChildren + NumPeople +
+ NumRooms + NumUnits + NumVehicles + NumWorkers +
+ OwnRent + YearBuilt + ElectricBill + FoodStamp +
+ HeatingFuel + Insurance + Language - 1,
+ data=acs, contrasts=FALSE)
+```
+行列`acsX`の左上を見る。
+```{r}
+topleft(acsX)
+```
+
+```{r}
+acsY <- build.y(Income ~ NumBedrooms + NumChildren + NumPeople +
+ NumRooms + NumUnits + NumVehicles + NumWorkers +
+ OwnRent + YearBuilt + ElectricBill + FoodStamp +
+ HeatingFuel + Insurance + Language - 1, data=acs) # = acs$Income
+```
+
+```{r}
+require(glmnet)
+set.seed(1863561)
+# glmnetでクロスバリデーションを行う
+acsCV1 <- cv.glmnet(x = acsX, y = acsY, family = "binomial", nfold = 5)
+```
+```{r}
+plot(acsCV1)
+```
+American Community Surveyデータにglmnetを適用させたときのクロスバリデ
+ーション曲線。上部の数字は与えられたlog（λ）に対するモデル中の変数の個数（factor
+levelsは個別の変数としてカウントされる）。点はクロスバリデーションエラーを示す。点
+から伸びる縦の線は信頼区間を示す。2つの垂直線のうち、左は誤差が最小になるλの値を
+示し、右は最小値から1標準誤差の範囲に収まるようなλのうち最大の値を示す。
+```{r}
+coef(acsCV1)
+```
+. は選ばれなかったパラメータを指す.
+
+# Ridge regression
+```{r}
+set.seed(71623)
+acsCV2 <- cv.glmnet(x = acsX, y = acsY, family = "binomial", nfold = 5,
+alpha = 0)
+```
+```{r}
+plot(acsCV2)
+```
+
+```{r}
+coefplot(acsCV2)
+```
+ridge回帰ではスパースにならない。
+
+# Bayesian shrinkage
+```{r}
+load("../data/ideo.rdata")
+head(ideo)
+```
+## 事前分布なし
+```{r}
+theYears <- unique(ideo$Year)
+# 結果を保持するために、上で作った年 vector と同じ長さの空の list を作成
+# 事前に長さを決めておけば実行速度が速くなる
+results <- vector(mode="list", length=length(theYears))
+# この list の要素に適切な名前を与える
+names(results) <- theYears
+```
+```{r}
+# 各年ごとのデータに対してモデルを適合させる
+for(i in theYears)
+{
+results[[as.character(i)]] <- glm(Vote ~ Race + Income + Gender +
+Education,
+data=ideo, subset=Year==i,
+family=binomial(link="logit"))
+}
+```
+```{r}
+g <- multiplot(results, coefficients="Raceblack", secret.weapon = T) + coord_flip(xlim=c(-20, 10))
+ggplotly(g)
+```
+
+## 事前分布あり
+```{r}
+require(arm)
+resultsB <- vector(mode="list", length=length(theYears))
+names(resultsB) <- theYears
+for(i in theYears)
+{
+# 尺度パラメータ2.5のコーシー事前分布を持つモデルに適合させる
+resultsB[[as.character(i)]] <-
+arm::bayesglm(Vote ~ Race + Income + Gender + Education,
+data=ideo[ideo$Year==i, ],
+family=binomial(link="logit"),
+prior.scale=2.5, prior.df=1)
+}
+```
+```{r}
+multiplot(resultsB, coefficients="Raceblack", secret.weapon=TRUE)
+```
+フィッティングがよくなっていることが分かる。

@@ -11,6 +11,8 @@ Rによる統計学と機械学習の勉強ノート。
 一般化線型モデルの勉強メモ。みんなのR, 17章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/208929))\*
 - ./modelValid  
 モデル評価の勉強メモ。みんなのR, 18章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/208941))\*
+- ./shrinkage  
+縮小推定のメモ。みんなのR,19章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/210999)  
 - ./clustering  
 クラスタリングの勉強メモ。みんなのR, 22章を参考にしました。([RPub](https://rpubs.com/YoshiHotta/202617))
 - ./supervisedUnsupervised  
