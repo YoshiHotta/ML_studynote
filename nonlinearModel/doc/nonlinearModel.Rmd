@@ -1,0 +1,93 @@
+---
+title: "非線形モデル"
+author: "yoshi"
+date: '2016-09-21'
+output:
+  html_document:
+    number_section: yes
+    smart: yes
+    toc: yes
+    toc_depth: 2
+abstract: みんなのR 20章の勉強ノート
+---
+```{r, message=FALSE, warning=FALSE}
+require(UsingR)
+require(ggplot2)
+require(tidyr)
+require(dplyr)
+require(plotly)
+require(coefplot)
+```
+# 非線形最小二乗法
+```{r}
+load("../data/wifi.rdata")
+head(wifi)
+```
+```{r}
+ggplot(wifi, aes(x=x, y=y, color=Distance)) + geom_point() +
+ scale_color_gradient2(low="blue", mid="white", high="red",
+ midpoint=mean(wifi$Distance))
+```
+```{r}
+wifiMod1 <- nls(Distance ~ sqrt((betaX - x)^2 + (betaY - y)^2),
+data = wifi, start = list(betaX = 50, betaY = 50))
+summary(wifiMod1)
+```
+```{r}
+ggplot(wifi, aes(x = x, y = y, color = Distance)) + geom_point() +
+ scale_color_gradient2(low = "blue", mid = "white", high = "red",
+ midpoint = mean(wifi$Distance)) +
+ geom_point(data = as.data.frame(t(coef(wifiMod1))),
+ aes(x = betaX, y = betaY), size = 5, color = "green")
+```
+青い点が密集しているところにあるのでよい推定であることが分かる.
+
+# スプライン  
+```{r}
+data("diamond")
+ggplot(diamond, aes(x=carat, y=price)) + geom_point()
+```
+```{r}
+diaSpline1 <- smooth.spline(x=diamond$carat, y=diamond$price )
+df <- data.frame(x=diaSpline1$x, y=diaSpline1$y)
+ggplot(diamond, aes(x=carat, y=price))+ geom_point() +
+  geom_line(data=df, aes(x=x,y=y)) + scale_x_continuous(limits = c(0.1, 0.36)) + 
+  scale_y_continuous(limits = c(0, 1100))
+```
+  
+# 一般化加法モデル
+
+# 決定木
+```{r}
+creditNames <- c("Checking", "Duration", "CreditHistory",
+"Purpose", "CreditAmount", "Savings", "Employment",
+"InstallmentRate", "GenderMarital", "OtherDebtors",
+"YearsAtResidence", "RealEstate", "Age",
+"OtherInstallment", "Housing", "ExistingCredits", "Job",
+"NumLiable", "Phone", "Foreign", "Credit")
+theURL <- "http://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german/german.data"
+credit <- read.table(theURL, sep = " ",header=FALSE,col.names=creditNames,stringsAsFactors = FALSE)
+require(rpart)
+require(rpart.plot)
+creditTree <- rpart(Credit ~ CreditAmount + Age +
++ CreditHistory + Employment, data = credit)
+head(credit)
+```
+```{r}
+rpart.plot(creditTree)
+```  
+
+# Random Forest
+```{r}
+require(useful)
+require(randomForest)
+# 予測因子と応答変数の matrix を作成する
+creditFormula <- Credit ~ CreditHistory + Purpose + Employment +
+Duration + Age + CreditAmount
+creditX <- build.x(creditFormula, data=credit)
+creditY <- build.y(creditFormula, data=credit)
+# ランダムフォレストの適用
+creditForest <- randomForest(x=creditX, y=creditY)
+creditForest
+```
+
