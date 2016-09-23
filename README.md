@@ -14,9 +14,13 @@ Rによる統計学と機械学習の勉強ノート。
 - ./shrinkage  
 縮小推定のメモ。みんなのR,19章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/210999))   
 - ./nonlinearModel  
-非線形モデルのメモ。みんなのR,20章を参考にしました。([Rpub](http://rpubs.com/YoshiHotta/211020))\*  
+非線形モデルのメモ。みんなのR,20章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/211020))\*  
+- ./timeSeries  
+時系列データのメモ。みんなのR,21章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/211111))
 - ./clustering  
 クラスタリングの勉強メモ。みんなのR, 22章を参考にしました。([RPub](https://rpubs.com/YoshiHotta/202617))
+- ./BayesDecisionRule  
+ベイズ決定則の勉強メモ。続わかりやすいパターン認識、3章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/211770))  
 - ./supervisedUnsupervised  
 EMアルゴリズムの勉強メモ。続わかりやすいパターン認識, 5章を参考にしました。([RPub](https://rpubs.com/YoshiHotta/209195))
 
