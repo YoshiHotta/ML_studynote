@@ -1,0 +1,126 @@
+---
+title: "隠れマルコフモデル"
+author: "yoshi"
+date: '2016-09-23'
+output:
+  html_document:
+    number_section: yes
+    smart: yes
+    toc: yes
+    toc_depth: 2
+abstract: 続わかりやすいパターン認識　第8章
+---
+```{r, message=FALSE, warning=FALSE}
+require(UsingR)
+require(ggplot2)
+require(tidyr)
+require(dplyr)
+require(plotly)
+require(coefplot)
+```
+```{r}
+require(RHmm)
+```
+
+# 前向きアルゴリズム
+まずHMMを作る。
+```{r}
+n_1d_2s <- distributionSet(dis = "DISCRETE", proba=list(c(0.9, 0.1), c(0.6,0.4), c(0.1,0.9)), labels=c("1", "2"))
+initproba <- c(1/3,1/3,1/3)
+transMat3 <- rbind(c(0.1,0.7,0.2), c(0.2,0.1,0.7),c(0.7, 0.2, 0.1))
+hmm0 <- HMMSet(initProb = initproba, transMat = transMat3, n_1d_2s)
+```
+このモデルから20個のサンプルを生成してみる。
+```{r}
+HMMSim(20, hmm0)
+```
+121が観測されたときの確率$P(121)$を計算してみよう。
+```{r}
+fwd <- forwardBackward(hmm0, c("1","2", "1"))
+exp(fwd$LLH)
+```
+
+# ビタービアルゴリズム  
+$\vec{x}=121$が観測されたとき、$P(\vec{s} | \vec{x})$を最大にする$\vec{s}$を求める。
+```{r}
+VitPath <- viterbi(hmm0, c("1","2", "1"))
+VitPath$states
+```
+
+# バウム・ウェルチアルゴリズム  
+```{r}
+obs <- HMMSim(nSim = 10000, HMM = hmm0)
+result <- HMMFit(obs, dis="DISCRETE", nStates = 3)
+hmm1 <- result$HMM
+```
+```{r}
+hmm1$initProb
+```
+```{r}
+hmm1$transMat
+```
+
+# 識別実験  
+HMMを生成モデルとして用いて識別をする。二つのモデルを次の様に定義する。
+```{r}
+dist1 <- distributionSet(dis = "DISCRETE", proba=list(c(0.9, 0.1), c(0.6,0.4), c(0.1,0.9)), labels=c("1", "2"))
+initproba1 <- c(1,0,0)
+transMat1 <- rbind(c(0.1,0.7,0.2), c(0.2,0.1,0.7),c(0.7, 0.2, 0.1))
+hmm1 <- HMMSet(initProb = initproba1, transMat = transMat1, dist1)
+
+dist2 <- distributionSet(dis = "DISCRETE", proba=list(c(0.9, 0.1), c(0.6,0.4), c(0.1,0.9)), labels=c("1", "2"))
+initproba2 <- c(1,0,0)
+transMat2 <- rbind(c(0.7,0.2,0.1), c(0.1,0.7,0.2),c(0.2, 0.1, 0.7))
+hmm2 <- HMMSet(initProb = initproba2, transMat = transMat2, dist2)
+```
+各モデルから10000個の出力を生成し、訓練データとして用い、バウムウェルチでパラメータ推定をする。
+```{r}
+nsim=10000
+obs1 <- HMMSim(nsim,hmm1)
+obs2 <- HMMSim(nsim,hmm2)
+hmmfit1 <- HMMFit(obs1, dis="DISCRETE", nStates = 3)
+hmmfit2 <- HMMFit(obs2, dis="DISCRETE", nStates = 3)
+```
+識別則を
+$$
+\Omega_k = \argmax_{\Omega_i} (P(\vec{x} | \Omega_i))
+$$
+とする。
+
+## 前向きアルゴリズムを用いた識別   
+```{r}
+nsamples <- 100
+npatterns <- 100
+
+train.data <- list()
+for (i in 1:nsamples){
+  train.data[[i]] <- HMMSim(nSim = npatterns, HMM = hmm1)$obs
+}
+for (i in 1:nsamples){
+  train.data[[i + nsamples]] <- HMMSim(nSim = npatterns, HMM = hmm2)$obs
+}
+preds <- c()
+llh1s <- c()
+llh2s <- c()
+for (i in 1:(2*nsamples)){
+  llh1 <- forwardBackward(hmm1, train.data[[i]])$LLH
+  llh2 <- forwardBackward(hmm2, train.data[[i]])$LLH
+  if(llh1 > llh2){
+    pred <- 1
+  } else {
+    pred <- 2
+  }
+  llh1s <- c(llh1s,llh1)
+  llh2s <- c(llh2s,llh2)
+  preds <- c(preds, pred)
+}
+df <- data.frame(true.class = c(rep(1,nsamples),rep(2, nsamples)), pred.class=preds, llh1=llh1s, llh2=llh2s)
+```
+誤分類率は
+```{r}
+sum(df$true.class != df$pred.class) / 2 / nsamples
+```
+```{r}
+ggplot(df, aes(x=llh1, y=llh2, group=true.class, colour=true.class)) + geom_point()
+```
+

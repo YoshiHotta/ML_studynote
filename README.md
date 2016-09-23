@@ -22,7 +22,10 @@ Rによる統計学と機械学習の勉強ノート。
 - ./BayesDecisionRule  
 ベイズ決定則の勉強メモ。続わかりやすいパターン認識、3章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/211770))  
 - ./supervisedUnsupervised  
-EMアルゴリズムの勉強メモ。続わかりやすいパターン認識, 5章を参考にしました。([RPub](https://rpubs.com/YoshiHotta/209195))
+EMアルゴリズムの勉強メモ。続わかりやすいパターン認識, 5章を参考にしました。([RPub](https://rpubs.com/YoshiHotta/209195))  
+- ./hmm  
+隠れマルコフモデルのメモ。続わかりやすいパターン認識、8章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/211799))  
+
 
 \*は未完成であることを示す。
   
