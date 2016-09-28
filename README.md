@@ -25,6 +25,8 @@ Rによる統計学と機械学習の勉強ノート。
 EMアルゴリズムの勉強メモ。続わかりやすいパターン認識, 5章を参考にしました。([RPub](https://rpubs.com/YoshiHotta/209195))  
 - ./hmm  
 隠れマルコフモデルのメモ。続わかりやすいパターン認識、8章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/211799))  
+- ./finiteMixtureModel  
+混合分布モデルのメモ。続わかりやすいパターン認識、9章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/213349))  
 
 
 \*は未完成であることを示す。

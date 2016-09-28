@@ -121,6 +121,8 @@ df <- data.frame(true.class = c(rep(1,nsamples),rep(2, nsamples)), pred.class=pr
 sum(df$true.class != df$pred.class) / 2 / nsamples
 ```
 ```{r}
-ggplot(df, aes(x=llh1, y=llh2, group=true.class, colour=true.class)) + geom_point()
+df$true.class <- as.factor(df$true.class)
+df$pred.class <- as.factor(df$pred.class)
+ggplot(df, aes(x=llh1, y=llh2, group=true.class, colour=true.class)) + geom_point(aes(shape=pred.class))
 ```
 

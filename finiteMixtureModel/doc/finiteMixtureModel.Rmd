@@ -1,0 +1,106 @@
+---
+title: "混合分布モデル"
+author: "yoshi"
+date: '2016-09-28'
+output:
+  html_document:
+    number_section: yes
+    smart: yes
+    toc: yes
+    toc_depth: 2
+abstract: 続わかりやすいパターン認識　第9章
+---
+```{r, message=FALSE, warning=FALSE}
+require(UsingR)
+require(ggplot2)
+require(tidyr)
+require(dplyr)
+require(plotly)
+require(coefplot)
+```
+```{r}
+require(flexmix)
+require(mclust)
+```
+
+# flexmix  
+[FlexMix: A General Framework for Finite Mixture
+Models and Latent Class Regression in R](https://cran.r-project.org/web/packages/flexmix/vignettes/flexmix-intro.pdf)
+のお勉強。
+```{r}
+data("NPreg")
+m1 <- flexmix(yn ~ x + I(x^2), data = NPreg, k = 2)
+ggplot(NPreg, aes(x=x, y=yn)) + geom_point()
+```
+
+```{r}
+m1 <- flexmix(yn ~ x + I(x^2), data=NPreg,k=2)
+summary(m1)
+```
+読み方：the estimated prior probabilities ˆπk, the number of observations assigned to the corresponding
+clusters, the number of observations where $p_{nk}$ > δ (with a default of δ = 10−4),
+and the ratio of the latter two numbers. $p_{nk}$はn番目のデータがクラスタkに割り当てられる事後確率。
+ratioが1に近いほどクラスタリングがよいと言える。
+
+# mclust   
+```{r}
+require(mclust)
+data(diabetes)
+class = diabetes$class
+table(class)
+```
+
+```{r}
+X = diabetes[,-1] # 教師ラベルを消す
+head(X)
+```
+```{r}
+BIC = mclustBIC(X)
+plot(BIC)
+```
+
+EIIなどは要素の形状を表している。
+　"EII":	球型、同体積   
+　"VII": 球型、異なる体積  
+　"EEE":	楕円球型、同体積・形・向き  
+　"VVV":	楕円球型、異なる体積・形・向き  
+　等を表す。  
+　BICが最大なのはVVVのk=3のモデルである。
+　
+```{r}
+mod1 = Mclust(X, x = BIC)
+summary(mod1, parameters = TRUE)
+```
+```{r}
+plot(mod1, "classification")
+```
+
+# 一次元正規分布 
+```{r}
+gmmgen <- function(n, mu1, mu2, sigma1, sigma2, pi1) {
+   data1 <- rnorm(n, mean=mu1, sd=sigma1)
+   data2 <- rnorm(n, mean=mu2, sd=sigma2)
+   data3 <- (runif(n) <= pi1) 
+   dat <- data1*data3 + data2*(1-data3) 
+   list(data=dat, class=(data3+1))
+}
+d <- gmmgen(n=500, mu1=3, mu2=-1, sigma1=1, sigma2=1, pi1=0.6)
+gmmdata <- d$data
+class <- d$class
+hist(gmmdata)
+```
+```{r}
+m2 <- Mclust(gmmdata)
+summary(m2)
+```
+
+```{r}
+plot(m2, "density", xlim=c(-4,6))
+par(new=T)
+hist(gmmdata, xlim=c(-4,6))
+```
+```{r}
+table(class, m2$classification)
+```
+
+# 
