@@ -1,0 +1,188 @@
+---
+title: "ディリクレ過程"
+author: "yoshi"
+date: '2016-09-28'
+output:
+  html_document:
+    number_section: yes
+    smart: yes
+    toc: yes
+    toc_depth: 2
+abstract: 続わかりやすいパターン認識　第11章、第12章
+---
+```{r, message=FALSE, warning=FALSE}
+require(UsingR)
+require(ggplot2)
+require(tidyr)
+require(dplyr)
+require(plotly)
+require(coefplot)
+require(DPpackage)
+```
+# Chinese restaurant process  
+Chinese restaurant process (CRP) / Hoppe's urn modeと呼ばれる過程は次の様な物である。  
+1. 壺の中に黒玉が一つ入っている。  
+2. 黒玉の重みを$\alpha$, 色玉の重みを$1$とし、重みに比例した確率で取り出す。  
+3. 黒玉が出たら新しい色の玉を壺の中に入れる。色玉が出たら同じ色の色玉と共に壺の中に戻す。  
+
+```{r}
+CRP <- function(alpha, n){
+  total_weight <- alpha
+  weight_c <- c(alpha)
+  n_colour <- 0
+  ball_c <- c()
+  n_colour_c <- c(0)
+  for (i in 1:n ){
+    ball <- sample(1:(n_colour + 1), size=1, prob = weight_c / total_weight)
+    if (ball == 1) {
+      weight_c <- c(weight_c, 1)
+      total_weight <- total_weight + 1
+      n_colour <- n_colour + 1
+      ball_c <- c(ball_c, 1)
+    } else{
+      weight_c[ball] <- weight_c[ball] + 1
+      total_weight <- total_weight + 1
+      ball_c <- c(ball_c, ball)
+    }
+    n_colour_c <- c(n_colour_c, n_colour)
+  }
+  return(list(balltaken=ball_c, colour=n_colour_c))
+} 
+
+b10 <- CRP(alpha = 10,1000)
+b2 <- CRP(alpha = 2,1000)
+df <- data.frame(num_colour=c(b10$colour,b2$colour), step=rep(0:1000,2), alpha=c(rep(10,1001), rep(2,1001)))
+df$alpha <- factor(df$alpha)
+g <- ggplot(df, aes(x=step,y=num_colour, group=alpha, colour=alpha)) + geom_line()
+ggplotly(g)
+```
+```{r}
+b10_2 <- CRP(alpha = 10, n = 100000)
+a <- table(b10_2$balltaken)[-1]
+plot(1:length(a),sort(a, decreasing = T), log="y", xlab = "ball colour", ylab = "number of balls")
+```
+
+個数分布は指数分布になる。一方Pitman-Yor processではべき分布になることが知られている。
+
+# Dirichlet process  
+$$P(\theta^n | \theta^1, \cdots, \theta^{n-1}) = \frac{\alpha}{\alpha + n -1}G_0 (\theta^n) + \frac{n-1}{\alpha + n -1}\left(\frac{1}{n-1}\sum_{i=1}^c n_i\delta_{\theta_i} \right)$$
+ここで$n_i$は$\theta^k~~(k=1,\cdots, n-1)$のうち$\theta_k$と等しい$\theta^k$の個数である。この式を用いて$\theta^1,\cdots, \theta^{1000}$を発生させた。基底分布$G_0(\theta)$はガウシアンに選んだ。
+
+```{r}
+ballcolour <- function(balltaken){
+  n_colour <- 1
+  colour <- c()
+  for (i in 1:length(balltaken)){
+    if (balltaken[i] == 1){
+      colour[i] <- n_colour + 1
+      n_colour <- n_colour + 1
+    } else{
+      colour[i] <- balltaken[i]
+    }
+  }
+  return(colour - 1)
+}
+
+plot_dp <- function(alpha){
+  crp <- CRP(alpha = alpha,n = 1000)
+  theta_l <- c()
+  for (i in 1:crp$colour[length(crp$colour)]){
+    theta <- rnorm(1)
+    theta_l <- c(theta_l, theta)
+  }
+  
+  n <- as.vector( table(ballcolour(crp$balltaken)) )
+  df <- data.frame(x= theta_l, count= n)
+  ggplot(df) + geom_bar(aes(x=x, y=count), stat="identity")
+}
+plot_dp(2)
+```
+```{r}
+plot_dp(alpha = 10)
+```
+```{r}
+plot_dp(1)
+```
+
+# Gibbs sampling  
+$$
+P(x_1 | x_2) = \frac{1}{\sqrt{2}}\exp\left[ -\frac{1}{2} (x_1 - a x_2)^2 \right], \\
+P(x_2 | x_1) = \frac{1}{\sqrt{2}}\exp\left[ -\frac{1}{2} (x_2 - a x_1)^2 \right]
+$$
+```{r}
+N <- 300
+a <- 0.6
+x1 <- 5
+x2 <- -5
+x1_l <- c(x1)
+x2_l <- c(x2)
+for (i in 1:N){
+  x1 <- rnorm(1,  mean=a * x2)
+  x1_l <- c(x1_l, x1)
+  x2_l <- c(x2_l, x2)
+  x2 <- rnorm(1, mean=a * x1)
+  x1_l <- c(x1_l, x1)
+  x2_l <- c(x2_l, x2)
+}
+df <- data.frame(n =1:length(x1_l),x= x1_l, y=x2_l)
+g <- ggplot(df, aes(x=x, y=y)) + geom_path() + geom_point() 
+v <- eigen(matrix(c(1,-a,-a,1), 2,2))
+g <- g + geom_path(data = df, aes(x=x, y=y))
+ggplotly(g)
+```
+
+# DPによるクラスタリング   
+```{r}
+set.seed(5)
+S <- list()
+mu <- list()
+for (i in 1:5) {
+  a <- matrix( rnorm(4,mean=0,sd=1), 2,2) 
+  a <- a + t(a)
+  b <- eigen(a)
+  a <- t( b$vectors ) %*% diag(abs(b$values)) %*% b$vectors
+  S[[i]] <- a
+  a <- matrix( rnorm(2,mean=0,sd=10), 1,2) 
+  mu[[i]] <- a
+}
+N <- 100
+data <- c()
+for (i in 1:5) {
+  a <- mvrnorm(n = N, Sigma = S[[i]], mu = mu[[i]])
+  data <- rbind(data, a)
+}
+plot(data)
+```
+
+```{r}
+s2 <- matrix(c(10000,0,0,1),ncol=2)
+m2 <- c(180,3)
+psiinv2 <- solve(matrix(c(10000,0,0,1),ncol=2))
+
+prior <- list(a0=1,b0=1/10,nu1=4,nu2=4,s2=s2,
+              m2=m2,psiinv2=psiinv2,tau1=0.01,tau2=0.01)
+
+# Initial state
+state <- NULL
+
+# MCMC parameters
+
+nburn <- 5000
+nsave <- 10000
+nskip <- 10
+ndisplay <- 1000
+mcmc <- list(nburn=nburn,nsave=nsave,nskip=nskip,ndisplay=ndisplay)
+
+# Fit the model
+fit1 <- DPdensity(y=data,prior=prior,mcmc=mcmc,
+                  state=state,status=TRUE,na.action=na.omit)
+```
+```{r}
+summary(fit1)
+```
+```{r}
+df <- data.frame(x=data[,1], y=data[,2], pred = fit1$state$ss)
+df$pred <- factor(df$pred)
+ggplot(df, aes(x=x,y=y,group=pred, colour=pred)) + geom_point()
+```
+正しくクラスタリング出来ていることが分かる。

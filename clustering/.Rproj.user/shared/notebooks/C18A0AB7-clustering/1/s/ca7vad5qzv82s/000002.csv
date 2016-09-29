@@ -1,2 +1,0 @@
-"0","df <- read.table(""../data/wine.data"", header = TRUE, sep="","")"
-"0","head(df)"

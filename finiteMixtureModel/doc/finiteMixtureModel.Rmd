@@ -102,5 +102,31 @@ hist(gmmdata, xlim=c(-4,6))
 ```{r}
 table(class, m2$classification)
 ```
+# 二次元  
+```{r}
+n <- 1000
+x <- sapply(1:n, function(i) if (runif(1) > 0.6) mvrnorm(1, c(-1,1), matrix(c(1, 0.5, 0.5, 1), 2)) else mvrnorm(1, c(1,-1), matrix(c(1, 0.7, 0.7, 1), 2)))
+X <- t(x)
+plot(X)
+```
+```{r}
+m3 <- Mclust(X)
+summary(m3)
+```
 
-# 
+```{r}
+plot(m3, "density", xlim=c(-5,5), ylim=c(-5,5))
+par(new=T)
+plot(X, xlim=c(-5,5), ylim=c(-5,5))
+```
+識別境界を書くにはcontour()を使えばよい。
+```{r}
+xgrid <- seq(-5,5,0.01)
+ygrid <- seq(-5,5,0.01)
+grid <- expand.grid(xgrid, ygrid)
+pred <- predict(m3, grid)
+contour(xgrid,ygrid,array(pred$classification,dim=c(length(xgrid),length(ygrid))), xlim=c(-5,5), ylim=c(-5,5), drawlabels=F, col = "blue")
+par(new=T)
+plot(X, xlim=c(-5,5), ylim=c(-5,5))
+```
+

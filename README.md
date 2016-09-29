@@ -27,6 +27,9 @@ EMアルゴリズムの勉強メモ。続わかりやすいパターン認識, 5
 隠れマルコフモデルのメモ。続わかりやすいパターン認識、8章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/211799))  
 - ./finiteMixtureModel  
 混合分布モデルのメモ。続わかりやすいパターン認識、9章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/213349))  
+- ./DirichletProcess  
+ディリクレ過程のメモ。続わかりやすいパターン認識、11章と12章を参考にしました．([RPub](http://rpubs.com/YoshiHotta/213640))  
+
 
 
 \*は未完成であることを示す。
