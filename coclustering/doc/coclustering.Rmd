@@ -1,0 +1,41 @@
+---
+title: "共クラスタリング"
+author: "yoshi"
+date: '2016-09-29'
+output:
+  html_document:
+    number_section: yes
+    smart: yes
+    toc: yes
+    toc_depth: 2
+abstract: blockclusterパッケージを使った共クラスタリング
+---
+```{r, message=FALSE, warning=FALSE}
+require(UsingR)
+require(ggplot2)
+require(tidyr)
+require(dplyr)
+require(plotly)
+require(coefplot)
+require(blockcluster)
+```
+# 共クラスタリング  
+共クラスタリングはクラスタ数を指定するアルゴリズムと指定しないアルゴリズムがある。クラスタ数を指定しないアルゴリズムとしてはinfinite relational modelがある。ここではクラスタ数をしていするアルゴリズムを用いる。
+```{r}
+defaultstrategy <- coclusterStrategy()
+summary(defaultstrategy)
+```
+
+```{r}
+data("binarydata")
+binarydata[1:10,1:10]
+```
+
+```{r}
+out<-coclusterBinary(binarydata, nbcocluster=c(2,3))
+summary(out)
+```
+```{r}
+plot(out)
+```
+

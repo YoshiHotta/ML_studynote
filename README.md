@@ -29,6 +29,8 @@ EMアルゴリズムの勉強メモ。続わかりやすいパターン認識, 5
 混合分布モデルのメモ。続わかりやすいパターン認識、9章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/213349))  
 - ./DirichletProcess  
 ディリクレ過程のメモ。続わかりやすいパターン認識、11章と12章を参考にしました．([RPub](http://rpubs.com/YoshiHotta/213640))  
+- ./coclustering  
+共クラスタリングのメモ。blockclusterパッケージを使用しました。([RPub](http://rpubs.com/YoshiHotta/213647))  
 
 
 
