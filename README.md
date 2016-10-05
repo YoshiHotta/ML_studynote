@@ -6,7 +6,7 @@ Rによる統計学と機械学習の勉強ノート。
 
 # ディレクトリ  
 - ./linearModel  
-線形モデルの勉強メモ。みんなのR, 16章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/208907))
+線形モデルの勉強メモ。みんなのR, 16章とはじパタ第2章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/208907))
 - ./GLM  
 一般化線型モデルの勉強メモ。みんなのR, 17章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/208929))\*
 - ./modelValid  
@@ -31,10 +31,10 @@ EMアルゴリズムの勉強メモ。続わかりやすいパターン認識, 5
 ディリクレ過程のメモ。続わかりやすいパターン認識、11章と12章を参考にしました．([RPub](http://rpubs.com/YoshiHotta/213640))  
 - ./coclustering  
 共クラスタリングのメモ。blockclusterパッケージを使用しました。([RPub](http://rpubs.com/YoshiHotta/213647))  
-
+sdfasdfasdfsssdfsfaasdfas
 
 
 \*は未完成であることを示す。
-  
+  O 伊藤 (物工)
 
 

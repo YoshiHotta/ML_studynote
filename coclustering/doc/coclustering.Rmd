@@ -20,7 +20,7 @@ require(coefplot)
 require(blockcluster)
 ```
 # 共クラスタリング  
-共クラスタリングはクラスタ数を指定するアルゴリズムと指定しないアルゴリズムがある。クラスタ数を指定しないアルゴリズムとしてはinfinite relational modelがある。ここではクラスタ数をしていするアルゴリズムを用いる。
+共クラスタリングはクラスタ数を指定するアルゴリズムと指定しないアルゴリズムがある。クラスタ数を指定しないアルゴリズムとしてはinfinite relational modelがある。ここではクラスタ数を指定するアルゴリズムを用いる。
 ```{r}
 defaultstrategy <- coclusterStrategy()
 summary(defaultstrategy)

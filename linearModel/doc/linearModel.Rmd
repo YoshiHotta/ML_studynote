@@ -63,3 +63,38 @@ house9 <- lm(ValueperSqFt ~ I(Units + SqFt)^2 , data = housing)
 coefplot(house9)
 ```
 
+# 汎化誤差  
+```{r}
+noise <- 0.2
+x.train <- seq(1, 2*pi, length.out = 10)
+y.train <- sin(x.train) + rnorm(length(x.train), mean = 0, sd = noise)
+x.test <- seq(1, 2*pi, length.out = 10)
+y.test <- sin(x.train) + rnorm(length(x.train), mean = 0, sd = noise)
+model.1 <- lm(formula = y.train ~ x.train)
+df <- data.frame(x=x.train, y.train=y.train, y.test=y.test)
+ggplot(df, aes(x=x.train)) + geom_point(aes(y=y.train, shape='train')) + geom_point(aes(y=y.test, shape='test')) + 
+  geom_smooth(method='lm', aes(x=x.train, y=y.train), se=F)
+```
+```{r}
+ggplot(df, aes(x=x.train)) + geom_point(aes(y=y.train, shape='train')) + geom_point(aes(y=y.test, shape='test')) + 
+  geom_smooth(method='lm', formula = 'y~I(x^2)+x',aes(x=x.train, y=y.train), se=F)
+```
+```{r}
+ggplot(df, aes(x=x.train)) + geom_point(aes(y=y.train, shape='train')) + geom_point(aes(y=y.test, shape='test')) + 
+  geom_smooth(method='lm', formula='y~I(x^3) + I(x^2) + x', aes(x=x.train, y=y.train), se=F)
+```
+
+```{r}
+rmse.train <- c()
+rmse.test <- c()
+for (deg in 1:9) {
+  model <- lm(formula = y.train~poly(x.train,deg))
+  rmse <- sqrt( sum( ( y.train - predict(model) )^2 ) / length(x.train) )
+  rmse.train <- c(rmse.train,rmse)
+  rmse <- sqrt( sum( ( y.test - predict(model) )^2 ) / length(x.train) )
+  rmse.test <- c(rmse.test,rmse)
+}
+df <- data.frame(degree =rep(1:9,2), rmseError=c(rmse.train, rmse.test), data=c(rep('train',9), rep('test',9)))
+ggplot(df,  aes(x=degree, y=rmseError, group=data, color=data)) + geom_point()
+```
+汎化誤差が最小になるのは三次のモデルである。
