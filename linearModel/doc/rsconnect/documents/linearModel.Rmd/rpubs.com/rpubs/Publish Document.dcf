@@ -1,0 +1,8 @@
+name: Publish Document
+title:
+account: rpubs
+server: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/208907/6484870294134d6f8080c325a9530db3
+bundleId: https://api.rpubs.com/api/v1/document/208907/6484870294134d6f8080c325a9530db3
+url: http://rpubs.com/YoshiHotta/208907
+when: 1475650427.46424

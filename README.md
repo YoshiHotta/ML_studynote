@@ -20,7 +20,7 @@ Rによる統計学と機械学習の勉強ノート。
 - ./clustering  
 クラスタリングの勉強メモ。みんなのR, 22章を参考にしました。([RPub](https://rpubs.com/YoshiHotta/202617))
 - ./BayesDecisionRule  
-ベイズ決定則の勉強メモ。続わかりやすいパターン認識、3章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/211770))  
+ベイズ決定則の勉強メモ。続わかりやすいパターン認識、3章とはじパタ3章を参考にしました。([RPub](http://rpubs.com/YoshiHotta/211770))  
 - ./supervisedUnsupervised  
 EMアルゴリズムの勉強メモ。続わかりやすいパターン認識, 5章を参考にしました。([RPub](https://rpubs.com/YoshiHotta/209195))  
 - ./hmm  
